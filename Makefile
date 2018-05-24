@@ -1,7 +1,7 @@
 CC = gcc
 COMPILER_FLAGS = -Wall -Wextra -g
 ASM = nasm
-AFLAGS= -f elf64
+AFLAGS= -f elf64 
 LINKER_FLAGS = -lSDL2
 OBJ_NAME = renderer
 

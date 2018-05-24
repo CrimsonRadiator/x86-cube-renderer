@@ -6,6 +6,13 @@
 int main()
 {
   int quit = 0;
+//  double Cube[] = {0.5, 0.5, 0.5, 0.5, 0.5, -0.5, 0.5, -0.5, 0.5, 0.5, -0.5, -0.5, -0.5, 0.5, 0.5, -0.5, 0.5, -0.5, -0.5, -0.5, 0.5, -0.5, -0.5, -0.5};
+//  int lines[] = {0,2, 0,1, 0,4, 7,6, 7,5, 7,3, 1,3, 1,5, 2,3, 2,6, 4,6, 4,5};
+
+  float M1[] = {1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0};
+  float M2[] = {1.1, 3.2, 2.2, 4.4, 5.5, 7.7, 8.8, 8.8, 9.9};
+  float M3[9];
+
   SDL_Event event;
 
   SDL_Init(SDL_INIT_VIDEO);
@@ -14,20 +21,27 @@ int main()
       SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, CANVAS_SIZE, CANVAS_SIZE, 0);
 
   SDL_Renderer * renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
- // SDL_Texture * texture = SDL_CreateTexture(renderer,
- //     SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STATIC, CANVAS_SIZE, CANVAS_SIZE);
- // Uint32* pixels =malloc(CANVAS_SIZE* CANVAS_SIZE* sizeof(Uint32));
- // memset(pixels, 255, CANVAS_SIZE* CANVAS_SIZE* sizeof(Uint32));
   memset(canvas, 0, sizeof(canvas[0][0])*CANVAS_SIZE*CANVAS_SIZE); 
-  printf("a");
-  bresenham(11, 22, 40, 101);
-  bresenham(13, 11, 111, 123);
-  bresenham(222, 22, 33, 101);
-  printf("b");
+
+  
+  matrix_multiplication_3x3(M3, M2, M1);
+  
+  int i;
+  for(i=0; i<9; ++i){
+    if(i>0 && i%3==0)
+      printf("\n");
+    printf("%f ",M3[i]);
+  }
+
+  //bresenham(11, 22, 40, 101);
+  //bresenham(13, 11, 111, 123);
+  //bresenham(222, 22, 33, 101);
+
+
+
   //x y z
   float tr[3];
   float rt[3];
-  int i;
   for(i=0; i<3; ++i)
   {
     tr[i]=0.f;
@@ -87,7 +101,7 @@ int main()
             break;
         }
       }
-      printf("%f %f %f   %f %f %f\n", tr[0],tr[1],tr[2],rt[0],rt[1],rt[2]);
+      //printf("%f %f %f   %f %f %f\n", tr[0],tr[1],tr[2],rt[0],rt[1],rt[2]);
     }
     SDL_RenderClear(renderer);
     int x;

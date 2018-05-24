@@ -1,13 +1,18 @@
 global bresenham
+global matrix_multiplication_3x3
 global canvas
 
 section .data
     align   16
     TRUE    equ 1
     FALSE   equ 0
+    align   16
+zero:       dd 0
 
 section .text
 
+;void bresenham(int x0, int y0, int x1, int y1)
+;fills canvas array with 1s where pixel should be white
 bresenham:
     push    rbp                 ;function prologue
     mov     rbp, rsp
@@ -94,13 +99,73 @@ bresenham:
     cmp     r10, rdx
     jle     .loop
 
-  add     rsp, 48 ;function epilogue
-;    mov     rsp, rbp
-  pop     r11
-  pop     r10
-  pop     rdi     
-  pop     rsi
-  pop     rdx
-  pop     rcx
-  pop     rbp
-  ret 
+    add     rsp, 48             ;function epilogue
+    pop     r11
+    pop     r10
+    pop     rdi     
+    pop     rsi
+    pop     rdx
+    pop     rcx
+    pop     rbp
+    ret 
+
+;void matrix_multiplication_3x3(float* C, float* B, float*A)
+;multiplies AxB and stores result in C
+matrix_multiplication_3x3:
+    push    rbp                 ;function prologue
+    mov     rbp, rsp
+    push    rdx                 ;*A
+    push    rsi                 ;*B
+    push    rdi                 ;*C
+    push    rcx
+    sub     rsp, 48             ; sum
+                                ;copy registers
+    mov     r8, rdx             ;A 
+    mov     r9, rsi             ;B
+    mov     r10, rdi            ;C
+
+    
+    mov     rcx, 0              ;rcx=0
+    mov     rax, 0              ;row counter/offset
+.row_loop:
+    mov     rbx, 0              ;column counter/offset
+   
+    mov     r8, rdx
+    add     r8, rax 
+.column_loop:
+    mov     r9, rsi
+    add     r9, rbx
+    finit                       ;initialize FPU    
+    fldz                        ;load 0 to s(0)
+    fld     dword  [r8]                ;load element from A
+    fld     dword  [r9]                ;load element from B
+    fmul    st1                 ;st0=st0*st1 (c=b*a)
+    fld     dword  [r8+4]              ;load second element from A
+    fld     dword  [r9+12]             ;load second element from B
+    fmul    st1
+    fadd    st2, st0
+    fld     dword  [r8+8]              ;load third element from A
+    fld     dword  [r9+24]             ;load third element from B
+    fmul    st1
+    fadd    st4, st0
+    fxch    st4
+    
+    fst     dword  [r10+rcx]
+    add     rcx, 4
+    
+    add     rbx, 4
+    cmp     rbx, 12
+    jne     .column_loop
+    add     rax, 12
+    cmp     rax, 36
+    jne     .row_loop
+ 
+    add     rsp, 48             ;function epilogue
+    pop     rcx
+    pop     rdi
+    pop     rsi
+    pop     rdx
+    pop     rbp
+    ret 
+
+    
