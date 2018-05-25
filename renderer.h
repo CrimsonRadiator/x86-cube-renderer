@@ -9,4 +9,5 @@ void create_rotation_matrix();
 
 void bresenham(int x1, int y1, int x2, int y2);
 //C=AxB
-void matrix_multiplication_3x3(float* A, float* B, float*C);
+void matrix_multiplication_3x3(float* C, float* B, float*A);
+void vector_matrix_multiolication_3x3(float *M, float*V, float R);

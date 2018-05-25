@@ -1,5 +1,6 @@
 global bresenham
 global matrix_multiplication_3x3
+global vector_matrix_multiplication_4x4
 global canvas
 
 section .data
@@ -168,4 +169,76 @@ matrix_multiplication_3x3:
     pop     rbp
     ret 
 
+;void  vector_matrix_multiplication_4x4(float* R, float* M, float* V)
+;credits: drizz @ masmforum.com
+;         whoever taught INF5063 at University of Oslo in 2015
+;         (probably Hakon Kvale Stensland)
+;         thanks guys!
+vector_matrix_multiplication_4x4:
+    push    rbp                 ;function prologue
+    mov     rbp, rsp
+    push    rdx                 ;*V
+    push    rsi                 ;*M
+    push    rdi                 ;*R
+    push    rcx
+ 
+  
+    movups  xmm4, [rsi]         ;first row
+    movups  xmm5, [rsi + 0x10]  ;second
+    movups  xmm6, [rsi + 0x20]  ;third
+    movups  xmm7, [rsi + 0x30]  ;fourth
     
+    movdqa      xmm0, xmm6		  ; 9 10 11 12
+    movdqa      xmm1, xmm6	  	; 9 10 11 12
+                             	  ; 13 14 15 16
+    punpckldq   xmm0, xmm7	    ; 9 13 10 14
+    punpckhdq   xmm1, xmm7		  ; 11 15 12 16
+    movdqa      xmm6, xmm4		  ; 1 2 3 4
+    punpckldq   xmm4, xmm5		  ; 1 5 2 6
+    punpckhdq   xmm6, xmm5		  ; 3 7 4 8
+    
+    movdqa      xmm5, xmm4		  ; 1 5 2 6
+    movdqa      xmm7, xmm6		  ; 9 13 10 14
+    
+    punpcklqdq  xmm4, xmm0	    ; 1 5 9 13
+    punpckhqdq  xmm5, xmm0	    ; 2 6 10 14
+    punpcklqdq  xmm6, xmm1	    ; 3 7 11 15
+    punpckhqdq  xmm7, xmm1	    ; 4 8 12 16 
+
+ 
+
+    movups  xmm0, [rdx]         ;load input vector
+    xorps   xmm2, xmm2          ;zero the output vector
+    
+    movups  xmm1, xmm0          ;first row
+    shufps  xmm1, xmm1, 0x00
+    mulps   xmm1, xmm4
+    addps   xmm2, xmm1
+
+    
+    movups  xmm1, xmm0          ;second row
+    shufps  xmm1, xmm1, 0x55
+    mulps   xmm1, xmm5
+    addps   xmm2, xmm1
+    
+
+    movups  xmm1, xmm0          ;third row
+    shufps  xmm1, xmm1, 0xAA
+    mulps   xmm1, xmm6
+    addps   xmm2, xmm1
+
+
+    movups  xmm1, xmm0          ;fourth row
+    shufps  xmm1, xmm1, 0xFF
+    mulps   xmm1, xmm7
+    addps   xmm2, xmm1
+
+    movups  [rdi], xmm2         ;save to R
+  
+                                ;function epilogue
+    pop     rcx
+    pop     rdi
+    pop     rsi
+    pop     rdx
+    pop     rbp
+    ret 

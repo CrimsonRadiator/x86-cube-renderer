@@ -13,6 +13,9 @@ int main()
   float M2[] = {1.1, 3.2, 2.2, 4.4, 5.5, 7.7, 8.8, 8.8, 9.9};
   float M3[9];
 
+  float M4[] = {1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4};
+  float R[4];
+  float V[4] = {1.0, 2.0, 3.0, 4.0};
   SDL_Event event;
 
   SDL_Init(SDL_INIT_VIDEO);
@@ -25,6 +28,10 @@ int main()
 
   
   matrix_multiplication_3x3(M3, M2, M1);
+
+  vector_matrix_multiplication_4x4(R, M4, V);  
+
+  printf("MV= %f %f %f %f", R[0], R[1], R[2], R[3]); 
   
   int i;
   for(i=0; i<9; ++i){
