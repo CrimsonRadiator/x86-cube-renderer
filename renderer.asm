@@ -1,6 +1,12 @@
 global bresenham
 global matrix_multiplication_3x3
 global vector_matrix_multiplication_4x4
+global vector_matrix_multiplication_3x3
+global fill_Mrx
+global fill_Mry
+global fill_Mrz
+global fpu_test
+
 global canvas
 
 section .data
@@ -8,7 +14,10 @@ section .data
     TRUE    equ 1
     FALSE   equ 0
     align   16
-zero:       dd 0
+
+section .bss
+    tmp_matrix: resb 64
+    tmp_vector: resb 16
 
 section .text
 
@@ -241,4 +250,117 @@ vector_matrix_multiplication_4x4:
     pop     rsi
     pop     rdx
     pop     rbp
+    ret 
+
+
+vector_matrix_multiplication_3x3:
+    push    rbp                 ;function prologue
+    mov     rbp, rsp
+    push    rdx                 ;*V
+    push    rsi                 ;*M
+    push    rdi                 ;*R
+    push    rcx
+
+    movups  xmm0, [rsi]         ;first row
+    movups  [tmp_matrix], xmm0
+    movups  xmm0, [rsi+12]      ;second row
+    movups  [tmp_matrix+16], xmm0
+    movups  xmm0, [rsi+24]      ;third row
+    movups  [tmp_matrix+32], xmm0
+    xorps   xmm0, xmm0          ;zero xmm0
+    movups  [tmp_matrix+48], xmm0
+
+    movups  xmm0, [rdx]         ;tmp vector
+    movups  [tmp_vector], xmm0
+ 
+    
+
+    ;lea     rdx, [rbp+64]       ;vector as arg
+    mov     rsi, tmp_matrix 
+    mov     rdx, tmp_vector      ;matrix as arg
+    
+    call    vector_matrix_multiplication_4x4 
+
+    ;mov     rdi, tmp_vector
+                                ;function epilogue
+    pop     rcx
+    pop     rdi
+    pop     rsi
+    pop     rdx
+    pop     rbp
+    ret 
+
+
+
+fill_Mrx:
+    push    rbp                 ;function prologue
+    mov     rbp, rsp
+    
+    finit   
+    fld     dword [rsi]               ;load rad
+    fsin                        ;get sin
+    fst     dword  [rdi+28]     ;store
+    fchs                        ;negate
+    fst     dword [rdi+20]      
+    fld     dword [rsi] 
+    fcos                        ;get cos
+    fst     dword [rdi+16]      ;store
+    fst     dword [rdi+32]      ;store
+
+                                ;function epilogue
+    pop     rbp
+    ret 
+
+fill_Mry:
+    push    rbp                 ;function prologue
+    mov     rbp, rsp
+  
+    finit   
+    fld     dword [rsi]                 ;load rad
+    fsin                        ;get sin
+    fst     dword  [rdi+8]      ;store
+    fchs                        ;negate
+    fst     dword [rdi+24]      
+    fld     dword [rsi]
+    fcos                        ;get cos
+    fst     dword [rdi+0]       ;store
+    fst     dword [rdi+32]      ;store
+
+                                ;function epilogue
+    pop     rbp
+    ret 
+
+fill_Mrz:
+    push    rbp                 ;function prologue
+    mov     rbp, rsp
+  
+    
+    finit   
+    fld     dword [rsi]                 ;load rad
+    fsin                        ;get sin
+    fst     dword [rdi+12]        ;store
+    fchs                        ;negate
+    fst     dword [rdi+4]      
+    fld     dword [rsi]  
+    fcos                        ;get cos
+    fst     dword [rdi+0]       ;store
+    fst     dword [rdi+16]      ;store
+
+                                ;function epilogue
+    pop     rbp
+    ret 
+
+
+fpu_test:
+    push  rbp
+    mov   rbp, rsp
+
+    finit
+    fld dword [rdi]
+    fsin
+    fst dword [rdi]
+    fchs
+    fst dword [rdi]
+
+    pop   rbp
     ret 
