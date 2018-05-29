@@ -5,9 +5,13 @@ global vector_matrix_multiplication_3x3
 global fill_Mrx
 global fill_Mry
 global fill_Mrz
+global screen_coords
 global fpu_test
 
 global canvas
+global MViewPort
+global MProjection
+global MRotation
 
 section .data
     align   16
@@ -18,7 +22,7 @@ section .data
 section .bss
     tmp_matrix: resb 64
     tmp_vector: resb 16
-
+    tmp_vector2: resb 16
 section .text
 
 ;void bresenham(int x0, int y0, int x1, int y1)
@@ -278,9 +282,8 @@ vector_matrix_multiplication_3x3:
     ;lea     rdx, [rbp+64]       ;vector as arg
     mov     rsi, tmp_matrix 
     mov     rdx, tmp_vector      ;matrix as arg
-    
     call    vector_matrix_multiplication_4x4 
-
+  
     ;mov     rdi, tmp_vector
                                 ;function epilogue
     pop     rcx
@@ -316,7 +319,7 @@ fill_Mry:
     mov     rbp, rsp
   
     finit   
-    fld     dword [rsi]                 ;load rad
+    fld     dword [rsi]         ;load rad
     fsin                        ;get sin
     fst     dword  [rdi+8]      ;store
     fchs                        ;negate
@@ -351,6 +354,57 @@ fill_Mrz:
     ret 
 
 
+
+
+;void screen_coords(float *V, int* coords);
+screen_coords:
+    push    rbp                 ;function prologue
+    mov     rbp, rsp
+    push    rdx
+    push    rsi                 ;*coords
+    push    rdi                 ;*V
+    push    rcx
+    push    rsi 
+    extern MViewPort
+    extern MProjection
+    extern MRotation
+   
+    
+    mov     rdx, rdi            ;*V
+    mov     rsi, MRotation      ;*M
+    mov     rdi, tmp_vector2    ;*R
+    call vector_matrix_multiplication_3x3
+                                ;move 1 in float format
+    mov     [tmp_vector2+12], DWORD 0x3f800000   
+    
+    mov     rdx, tmp_vector2    ;*V
+    mov     rsi, MProjection    ;*M
+    mov     rdi, tmp_vector     ;*R
+    call vector_matrix_multiplication_4x4
+   
+                              ;move 1 in float format 
+    mov     [tmp_vector+12], DWORD  0x3f800000   
+.aaa:
+    mov     rdx, tmp_vector     ;*V
+    mov     rsi, MViewPort      ;*M
+    mov     rdi, tmp_vector2    ;*R 
+    call vector_matrix_multiplication_4x4
+
+    pop     rsi 
+    ;movups  xmm0, [tmp_vector]
+    movups  xmm0, [tmp_vector2]
+    cvttps2dq xmm0, xmm0        ;round to integer
+    movups  [rsi], xmm0 
+    
+    pop     rcx
+    pop     rdi
+    pop     rsi
+    pop     rdx
+    pop     rbp
+    ret 
+
+
+ 
 fpu_test:
     push  rbp
     mov   rbp, rsp
