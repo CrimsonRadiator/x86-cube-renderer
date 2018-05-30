@@ -5,6 +5,7 @@ global vector_matrix_multiplication_3x3
 global fill_Mrx
 global fill_Mry
 global fill_Mrz
+global fill_Projection
 global screen_coords
 global fpu_test
 
@@ -383,8 +384,7 @@ screen_coords:
     call vector_matrix_multiplication_4x4
    
                               ;move 1 in float format 
-    mov     [tmp_vector+12], DWORD  0x3f800000   
-.aaa:
+    ;mov     [tmp_vector+12], DWORD  0x3f800000   
     mov     rdx, tmp_vector     ;*V
     mov     rsi, MViewPort      ;*M
     mov     rdi, tmp_vector2    ;*R 
@@ -392,7 +392,10 @@ screen_coords:
 
     pop     rsi 
     ;movups  xmm0, [tmp_vector]
-    movups  xmm0, [tmp_vector2]
+    movups  xmm0, [tmp_vector2] ;load vector
+    movups  xmm1, xmm0          ;copy it
+    shufps  xmm1, xmm1, 0xFF    ;fill copy with last value
+    divps   xmm0, xmm1          ;divide
     cvttps2dq xmm0, xmm0        ;round to integer
     movups  [rsi], xmm0 
     
@@ -402,6 +405,22 @@ screen_coords:
     pop     rdx
     pop     rbp
     ret 
+
+fill_Projection:
+    push    rbp                 ;function prologue
+    mov     rbp, rsp
+    
+    finit   
+    fld     dword [rsi]         ;load X 
+    fst     dword [rdi+12]
+    fld     dword [rsi+4]       ;load y
+    fst     dword [rdi+28]
+    fld     dword [rsi+8]       ;load z
+    fst     dword [rdi+60]
+                                ;function epilogue
+    pop     rbp
+    ret 
+
 
 
  

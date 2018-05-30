@@ -7,6 +7,7 @@ float MRotation[9];
 void fill_Mrx(float* array, float* r);
 void fill_Mry(float* array, float* r);
 void fill_Mrz(float* array, float* r);
+void fill_Projection(float* array, float* r);
 void create_rotation_matrix();
 
 void bresenham(int x1, int y1, int x2, int y2);

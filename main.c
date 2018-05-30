@@ -39,13 +39,14 @@ int main()
 
   //x y z
   enum axis{X=0, Y, Z}; 
-  float tr[3];
+  float translation[3];
   float rotation[3];
   for(i=0; i<3; ++i)
   {
-    tr[i]=0.f;
+    translation[i]=0.f;
     rotation[i]=0.f;
   }
+    translation[Z] = 1.0f;
  
   while (!quit)
   {
@@ -63,22 +64,22 @@ int main()
         switch ( event.key.keysym.sym )
         {
           case SDLK_w:
-            tr[0]+=0.01;
+            translation[Y]-=0.03;
             break; 
           case SDLK_s:
-            tr[0]-=0.01;
+            translation[Y]+=0.03;
             break;
           case SDLK_a:
-            tr[1]+=0.01;
+            translation[X]-=0.03;
             break;
           case SDLK_d:
-            tr[1]-=0.01;
+            translation[X]+=0.03;
             break;
           case SDLK_q:
-            tr[2]+=0.01;
+            translation[Z]+=0.03;
             break;
           case SDLK_e:
-            tr[2]-=0.01;
+            translation[Z]-=0.03;
             break;
 
           case SDLK_u:
@@ -101,17 +102,18 @@ int main()
             break;
         }
       }
-      printf("%f %f %f   %f %f %f\n", tr[0],tr[1],tr[2],rotation[0],rotation[1],rotation[2]);
+      printf("%f %f %f   %f %f %f\n", translation[0],translation[1],translation[2],rotation[0],rotation[1],rotation[2]);
     }
     
-    //rotation[X]=0.2;
-    //rotation[Y]=0.3;
-    //rotation[Z]=0.4;
+    //translation[X]=0.2;
+    //translation[Y]=0.3;
+    //translation[Z]=-0.4;
   
     memset(canvas, 0, sizeof(canvas[0][0])*CANVAS_SIZE*CANVAS_SIZE); 
     fill_Mrx(Mrx, &rotation[X]);
     fill_Mry(Mry, &rotation[Y]);
     fill_Mrz(Mrz, &rotation[Z]);
+    fill_Projection(MProjection, translation);
  
     matrix_multiplication_3x3(M3, Mrx, Mrz);
     matrix_multiplication_3x3(MRotation, M3, Mry);
@@ -151,8 +153,8 @@ int main()
   ;}
 
 
- // SDL_DestroyRenderer(renderer);
- // SDL_DestroyWindow(window);
- // SDL_Quit();
+  SDL_DestroyRenderer(renderer);
+  SDL_DestroyWindow(window);
+  SDL_Quit();
   return 0;
 }
