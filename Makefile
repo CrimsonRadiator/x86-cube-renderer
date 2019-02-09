@@ -1,5 +1,5 @@
 CC = gcc
-COMPILER_FLAGS = -Wall -Wextra -g
+COMPILER_FLAGS = -Wall -Wextra -g -no-pie -fno-pie -fPIC
 ASM = nasm
 AFLAGS= -f elf64 
 LINKER_FLAGS = -lSDL2
